@@ -14,6 +14,15 @@ export async function run() {
 
     for (let i = 0; i < mixins.length; i++) {
       const mixin = mixins[i];
+      
+      // <Workaround> 
+      // For Helm3 mixin - can remove when mixin is added to official Porter mixin feed
+      if (mixin == "helm3") {
+        await exec.exec('porter', ['mixin', 'install', 'helm3', '--url', 'https://github.com/squillace/porter-helm3/releases/download', '--version', 'v0.1.helm3-beta4']);
+        continue
+      }
+      // </Workaround>
+      
       await exec.exec('porter', ['mixin', 'install', mixin]);
     }
 

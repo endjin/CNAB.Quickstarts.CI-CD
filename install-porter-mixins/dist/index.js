@@ -983,6 +983,13 @@ function run() {
             let mixins = manifest.mixins;
             for (let i = 0; i < mixins.length; i++) {
                 const mixin = mixins[i];
+                // <Workaround> 
+                // For Helm3 mixin - can remove when mixin is added to official Porter mixin feed
+                if (mixin == "helm3") {
+                    yield exec.exec('porter', ['mixin', 'install', 'helm3', '--url', 'https://github.com/squillace/porter-helm3/releases/download', '--version', 'v0.1.helm3-beta4']);
+                    continue;
+                }
+                // </Workaround>
                 yield exec.exec('porter', ['mixin', 'install', mixin]);
             }
             core.setOutput("mixins", mixins.join(','));
