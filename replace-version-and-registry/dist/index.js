@@ -659,17 +659,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const yaml = __importStar(__webpack_require__(414));
 const docker_reference_parser_1 = __webpack_require__(954);
-function updateManifest(manifestContents, version, tag, registry) {
+function updateManifest(manifestContents, version, registry, tag) {
     let manifest = yaml.safeLoad(manifestContents);
     manifest.version = version;
-    let invocationImage = manifest.invocationImage;
-    let invocationImageParsed = docker_reference_parser_1.parse(invocationImage);
-    invocationImage = `${registry}/${invocationImageParsed.path}:${tag}`;
-    manifest.invocationImage = invocationImage;
     let bundle = manifest.tag;
     let bundleParsed = docker_reference_parser_1.parse(bundle);
-    bundle = `${registry}/${bundleParsed.path}:${tag}`;
-    manifest.tag = bundle;
+    let newBundle = `${registry}/${bundleParsed.path}`;
+    if (tag) {
+        newBundle += `:${tag}`;
+    }
+    manifest.tag = newBundle;
     manifestContents = yaml.safeDump(manifest);
     return manifestContents;
 }
@@ -711,7 +710,7 @@ function run() {
             let tag = core.getInput("tag");
             let registry = core.getInput("registry");
             let manifestContents = yield fs_1.promises.readFile(manifestPath, 'utf8');
-            manifestContents = functions_1.updateManifest(manifestContents, version, tag, registry);
+            manifestContents = functions_1.updateManifest(manifestContents, version, registry, tag);
             core.info("Updated manifest:\n");
             core.info(manifestContents);
             yield fs_1.promises.writeFile(manifestPath, manifestContents);

@@ -9,17 +9,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const yaml = __importStar(require("js-yaml"));
 const docker_reference_parser_1 = require("docker-reference-parser");
-function updateManifest(manifestContents, version, tag, registry) {
+function updateManifest(manifestContents, version, registry, tag) {
     let manifest = yaml.safeLoad(manifestContents);
     manifest.version = version;
-    let invocationImage = manifest.invocationImage;
-    let invocationImageParsed = docker_reference_parser_1.parse(invocationImage);
-    invocationImage = `${registry}/${invocationImageParsed.path}:${tag}`;
-    manifest.invocationImage = invocationImage;
     let bundle = manifest.tag;
     let bundleParsed = docker_reference_parser_1.parse(bundle);
-    bundle = `${registry}/${bundleParsed.path}:${tag}`;
-    manifest.tag = bundle;
+    let newBundle = `${registry}/${bundleParsed.path}`;
+    if (tag) {
+        newBundle += `:${tag}`;
+    }
+    manifest.tag = newBundle;
     manifestContents = yaml.safeDump(manifest);
     return manifestContents;
 }
