@@ -27,7 +27,7 @@ function run() {
             let tag = core.getInput("tag");
             let registry = core.getInput("registry");
             let manifestContents = yield fs_1.promises.readFile(manifestPath, 'utf8');
-            manifestContents = functions_1.updateManifest(manifestContents, version, tag, registry);
+            manifestContents = functions_1.updateManifest(manifestContents, version, registry, tag);
             core.info("Updated manifest:\n");
             core.info(manifestContents);
             yield fs_1.promises.writeFile(manifestPath, manifestContents);

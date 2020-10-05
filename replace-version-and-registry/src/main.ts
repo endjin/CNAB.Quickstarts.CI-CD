@@ -12,7 +12,7 @@ export async function run() {
 
     let manifestContents = await fs.readFile(manifestPath, 'utf8');
 
-    manifestContents = updateManifest(manifestContents, version, tag, registry);
+    manifestContents = updateManifest(manifestContents, version, registry, tag);
 
     core.info("Updated manifest:\n");
     core.info(manifestContents);

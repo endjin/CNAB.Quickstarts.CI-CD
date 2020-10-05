@@ -9,7 +9,7 @@ inputs:
     required: true
   tag:
     description: 'The tag to replace with'
-    required: true
+    required: false
   registry:
     description: 'The registry to replace with'
     required: true
