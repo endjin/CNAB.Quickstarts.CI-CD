@@ -14,7 +14,7 @@ export async function run() {
     let manifestContents = await fs.readFile(manifestPath, 'utf8');
     let manifest = yaml.safeLoad(manifestContents);
 
-    manifest = updateManifest(manifestContents, version, registry, tag);
+    manifest = updateManifest(manifest, version, registry, tag);
 
     let registryTag = getRegistryTag(manifest)
 

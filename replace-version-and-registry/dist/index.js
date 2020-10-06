@@ -710,7 +710,7 @@ function run() {
             let registry = core.getInput("registry");
             let manifestContents = yield fs_1.promises.readFile(manifestPath, 'utf8');
             let manifest = yaml.safeLoad(manifestContents);
-            manifest = functions_1.updateManifest(manifestContents, version, registry, tag);
+            manifest = functions_1.updateManifest(manifest, version, registry, tag);
             let registryTag = functions_1.getRegistryTag(manifest);
             core.setOutput("registry_tag", registryTag);
             manifestContents = yaml.safeDump(manifest);
