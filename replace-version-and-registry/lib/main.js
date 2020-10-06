@@ -19,6 +19,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 const fs_1 = require("fs");
 const functions_1 = require("./functions");
+const yaml = __importStar(require("js-yaml"));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -27,7 +28,11 @@ function run() {
             let tag = core.getInput("tag");
             let registry = core.getInput("registry");
             let manifestContents = yield fs_1.promises.readFile(manifestPath, 'utf8');
-            manifestContents = functions_1.updateManifest(manifestContents, version, registry, tag);
+            let manifest = yaml.safeLoad(manifestContents);
+            manifest = functions_1.updateManifest(manifestContents, version, registry, tag);
+            let registryTag = functions_1.getRegistryTag(manifest);
+            core.setOutput("registry_tag", registryTag);
+            manifestContents = yaml.safeDump(manifest);
             core.info("Updated manifest:\n");
             core.info(manifestContents);
             yield fs_1.promises.writeFile(manifestPath, manifestContents);

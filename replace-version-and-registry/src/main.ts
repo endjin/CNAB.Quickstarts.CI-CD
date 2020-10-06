@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import { promises as fs } from 'fs';
-import { updateManifest } from './functions'
+import { getRegistryTag, updateManifest } from './functions'
+import * as yaml from 'js-yaml'
 
 export async function run() {
   try {
@@ -11,8 +12,15 @@ export async function run() {
     let registry = core.getInput("registry");
 
     let manifestContents = await fs.readFile(manifestPath, 'utf8');
+    let manifest = yaml.safeLoad(manifestContents);
 
-    manifestContents = updateManifest(manifestContents, version, registry, tag);
+    manifest = updateManifest(manifestContents, version, registry, tag);
+
+    let registryTag = getRegistryTag(manifest)
+
+    core.setOutput("registry_tag", registryTag)
+
+    manifestContents = yaml.safeDump(manifest);
 
     core.info("Updated manifest:\n");
     core.info(manifestContents);

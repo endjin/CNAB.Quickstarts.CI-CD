@@ -13,6 +13,9 @@ inputs:
   registry:
     description: 'The registry to replace with'
     required: true
+outputs:
+    registry_tag:
+      description: 'The resultant tag that will be used when publishing the bundle'
 runs:
   using: 'node12'
   main: 'dist/index.js'

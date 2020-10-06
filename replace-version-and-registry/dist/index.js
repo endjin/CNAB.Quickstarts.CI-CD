@@ -649,30 +649,28 @@ module.exports = new Type('tag:yaml.org,2002:set', {
 
 "use strict";
 
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const yaml = __importStar(__webpack_require__(414));
 const docker_reference_parser_1 = __webpack_require__(954);
-function updateManifest(manifestContents, version, registry, tag) {
-    let manifest = yaml.safeLoad(manifestContents);
+function updateManifest(manifest, version, registry, tag) {
     manifest.version = version;
-    let bundle = manifest.tag;
-    let bundleParsed = docker_reference_parser_1.parse(bundle);
-    let newBundle = `${registry}/${bundleParsed.path}`;
+    let bundleTag = docker_reference_parser_1.parse(manifest.tag);
+    let newBundle = `${registry}/${bundleTag.path}`;
     if (tag) {
         newBundle += `:${tag}`;
     }
     manifest.tag = newBundle;
-    manifestContents = yaml.safeDump(manifest);
-    return manifestContents;
+    return manifest;
 }
 exports.updateManifest = updateManifest;
+function getRegistryTag(manifest) {
+    let registryTag = manifest.tag;
+    let bundleTag = docker_reference_parser_1.parse(registryTag);
+    if (!bundleTag.tag) {
+        registryTag += ":" + manifest.version;
+    }
+    return registryTag;
+}
+exports.getRegistryTag = getRegistryTag;
 
 
 /***/ }),
@@ -702,6 +700,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const fs_1 = __webpack_require__(747);
 const functions_1 = __webpack_require__(102);
+const yaml = __importStar(__webpack_require__(414));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -710,7 +709,11 @@ function run() {
             let tag = core.getInput("tag");
             let registry = core.getInput("registry");
             let manifestContents = yield fs_1.promises.readFile(manifestPath, 'utf8');
-            manifestContents = functions_1.updateManifest(manifestContents, version, registry, tag);
+            let manifest = yaml.safeLoad(manifestContents);
+            manifest = functions_1.updateManifest(manifestContents, version, registry, tag);
+            let registryTag = functions_1.getRegistryTag(manifest);
+            core.setOutput("registry_tag", registryTag);
+            manifestContents = yaml.safeDump(manifest);
             core.info("Updated manifest:\n");
             core.info(manifestContents);
             yield fs_1.promises.writeFile(manifestPath, manifestContents);
